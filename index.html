@@ -3,545 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZMF - 核心系统</title>
+    <title>ZMF</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        :root {
+            --dark-blue: #0a192f;
+            --light-blue: #64ffda;
+            --medium-blue: #1e3a8a;
+            --highlight-blue: #00b4d8;
+        }
+
         body {
-            background: #0a0a1a;
-            color: #4af;
-            font-family: 'Courier New', monospace;
+            background-color: var(--dark-blue);
+            margin: 0;
             overflow: hidden;
+            font-family: 'Courier New', monospace;
+            color: white;
             height: 100vh;
-        }
-        
-        #main-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-        
-        /* 芯片样式 - 最先加载 */
-        #chip {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
-            background: #001133;
-            border: 2px solid #004488;
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 100;
-            box-shadow: 0 0 0 rgba(68, 170, 255, 0);
-            animation: 
-                chipAppear 2s ease-out forwards,
-                chipGlow 3s ease-in-out infinite 2s;
         }
-        
-        @keyframes chipAppear {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
-            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        }
-        
-        @keyframes chipGlow {
-            0%, 100% { box-shadow: 0 0 10px rgba(68, 170, 255, 0.5); }
-            50% { box-shadow: 0 0 30px rgba(68, 170, 255, 0.8); }
-        }
-        
-        #chip-text {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #4af;
-            text-shadow: 0 0 10px #4af;
-            animation: textPulse 3s ease-in-out infinite 2s;
-        }
-        
-        @keyframes textPulse {
-            0%, 100% { opacity: 0.8; text-shadow: 0 0 10px #4af; }
-            50% { opacity: 1; text-shadow: 0 0 20px #4af; }
-        }
-        
-        /* 模块样式 - 延迟加载 */
-        .module {
+
+        .central-chip {
             position: absolute;
-            width: 120px;
-            height: 120px;
-            background: #001133;
-            border: 2px solid #003366;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .chip-border {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--light-blue);
+            border-radius: 5px;
+            box-shadow: 0 0 15px var(--light-blue);
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 15px var(--light-blue); }
+            50% { box-shadow: 0 0 30px var(--highlight-blue); }
+            100% { box-shadow: 0 0 15px var(--light-blue); }
+        }
+
+        .chip-text {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--light-blue);
+            text-shadow: 0 0 10px var(--light-blue);
+        }
+
+        .sections {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 20;
+        }
+
+        .section {
+            position: absolute;
+            width: 180px;
+            height: 180px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            cursor: pointer;
-            z-index: 50;
-            opacity: 0;
-            transform: scale(0.5);
-            transition: all 0.8s ease-out;
-            box-shadow: 0 0 10px rgba(0, 51, 102, 0.5);
+            color: var(--light-blue);
+            text-decoration: none;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            opacity: 0.9;
         }
-        
-        .module:hover {
-            border-color: #4af;
-            box-shadow: 0 0 20px rgba(68, 170, 255, 0.7);
+
+        .section:hover {
+            transform: scale(1.1);
+            opacity: 1;
         }
-        
-        .module-icon {
-            font-size: 2rem;
-            margin-bottom: 8px;
+
+        .section-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px currentColor;
         }
-        
-        .module-title {
-            font-size: 0.9rem;
+
+        .section-title {
+            font-size: 1.2rem;
         }
-        
-        /* 线路样式 */
-        .circuit-line {
-            stroke: #003366;
-            stroke-width: 2.4;
-            stroke-linecap: round;
-            fill: none;
-            animation: lineDraw 1.5s ease-out forwards;
-            opacity: 0;
-        }
-        
-        @keyframes lineDraw {
-            0% { stroke-dashoffset: 1000; opacity: 0; }
-            70% { opacity: 0.8; }
-            100% { stroke-dashoffset: 0; opacity: 1; }
-        }
-        
-        .active-line {
-            stroke: #4af;
-            animation: 
-                lineDraw 1.5s ease-out forwards,
-                lineGlow 2s ease-in-out infinite;
-        }
-        
-        @keyframes lineGlow {
-            0%, 100% { stroke-opacity: 0.8; }
-            50% { stroke-opacity: 1; }
-        }
-        
-        .end-point {
-            fill: #003366;
-            stroke: #003366;
-            stroke-width: 1;
-            r: 4;
-            opacity: 0;
-            animation: pointAppear 1s ease-out forwards;
-        }
-        
-        @keyframes pointAppear {
-            0% { r: 0; opacity: 0; }
-            100% { r: 4; opacity: 1; }
-        }
-        
-        .active-point {
-            fill: #4af;
-            stroke: #4af;
-            filter: drop-shadow(0 0 5px #4af);
-        }
-        
-        /* 加载动画 */
-        #loader {
-            position: fixed;
-            top: 0;
-            left: 0;
+
+        .particles {
+            position: absolute;
             width: 100%;
             height: 100%;
-            background: #0a0a1a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            transition: opacity 1.5s ease-out;
+            z-index: 1;
         }
-        
-        .loader-text {
-            color: #4af;
-            font-size: 1.2rem;
-            opacity: 0;
-            animation: fadeInOut 2s ease-in-out infinite;
-        }
-        
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background-color: var(--light-blue);
+            opacity: 0.6;
         }
     </style>
 </head>
 <body>
-    <div id="loader">
-        <div class="loader-text">核心系统启动中...</div>
+    <div class="particles" id="particles"></div>
+    
+    <div class="central-chip">
+        <div class="chip-border"></div>
+        <div class="chip-text">ZMF</div>
     </div>
     
-    <div id="main-container">
-        <svg id="circuit-svg" xmlns="http://www.w3.org/2000/svg"></svg>
-        
-        <div id="chip">
-            <div id="chip-text">ZMF</div>
-        </div>
-        
-        <div class="module" id="tools-module">
-            <div class="module-icon">🔧</div>
-            <div class="module-title">工具集</div>
-        </div>
-        
-        <div class="module" id="games-module">
-            <div class="module-icon">🎮</div>
-            <div class="module-title">游戏区</div>
-        </div>
-        
-        <div class="module" id="about-module">
-            <div class="module-icon">👤</div>
-            <div class="module-title">关于我</div>
-        </div>
-        
-        <div class="module" id="settings-module">
-            <div class="module-icon">⚙️</div>
-            <div class="module-title">设置</div>
-        </div>
+    <div class="sections">
+        <a href="https://tools.zmf.pages.dev" class="section" style="top: 20%; left: 20%; color: #ff6b6b;">
+            <div class="section-icon">🔧</div>
+            <div class="section-title">我的小工具</div>
+        </a>
+        <a href="https://games.zmf.pages.dev" class="section" style="top: 20%; left: 80%; color: #6bff6b;">
+            <div class="section-icon">🎮</div>
+            <div class="section-title">小游戏</div>
+        </a>
+        <a href="/settings/index.html" class="section" style="top: 80%; left: 20%; color: #6b6bff;">
+            <div class="section-icon">⚙️</div>
+            <div class="section-title">设置</div>
+        </a>
+        <a href="/about/index.html" class="section" style="top: 80%; left: 80%; color: #ffff6b;">
+            <div class="section-icon">✉️</div>
+            <div class="section-title">关于我</div>
+        </a>
     </div>
 
     <script>
-        // 严格按阶段加载
-        document.addEventListener('DOMContentLoaded', async function() {
-            // 1. 首先只显示芯片
-            const chip = document.getElementById('chip');
-            chip.style.opacity = 1;
+        // 创建粒子背景
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 100;
             
-            // 2. 延迟加载其他元素
-            setTimeout(async () => {
-                // 初始化电路系统
-                await initCircuitSystem();
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
                 
-                // 隐藏加载界面
-                const loader = document.getElementById('loader');
-                loader.style.opacity = '0';
-                setTimeout(() => loader.remove(), 1500);
+                // 随机位置
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
                 
-            }, 1500);
+                // 随机大小
+                const size = Math.random() * 4 + 1;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // 随机透明度
+                particle.style.opacity = Math.random() * 0.5 + 0.1;
+                
+                // 随机动画
+                const duration = Math.random() * 10 + 5;
+                particle.style.animation = `float ${duration}s infinite ease-in-out`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                
+                container.appendChild(particle);
+            }
+            
+            // 添加CSS动画
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes float {
+                    0%, 100% { transform: translate(0, 0); }
+                    25% { transform: translate(${Math.random() * 50 - 25}px, ${Math.random() * 50 - 25}px); }
+                    50% { transform: translate(${Math.random() * 50 - 25}px, ${Math.random() * 50 - 25}px); }
+                    75% { transform: translate(${Math.random() * 50 - 25}px, ${Math.random() * 50 - 25}px); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // 初始化
+        window.addEventListener('load', () => {
+            createParticles();
+            
+            // 注册Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js');
+            }
         });
-        
-        async function initCircuitSystem() {
-            // 确保芯片完全加载
-            const chip = document.getElementById('chip');
-            const chipRect = chip.getBoundingClientRect();
-            const chipCenter = {
-                x: chipRect.left + chipRect.width / 2,
-                y: chipRect.top + chipRect.height / 2
-            };
-            
-            // 1. 定位四个模块到四个象限
-            positionModules(chipCenter);
-            
-            // 2. 生成壮观的非交叉电路网络
-            generateCircuitNetwork(chipCenter);
-            
-            // 3. 添加交互效果
-            setupInteractions();
-            
-            // 4. 随机激活动画
-            startRandomActivations();
-        }
-        
-        function positionModules(chipCenter) {
-            const modules = [
-                document.getElementById('tools-module'),
-                document.getElementById('games-module'),
-                document.getElementById('about-module'),
-                document.getElementById('settings-module')
-            ];
-            
-            const radius = Math.min(window.innerWidth, window.innerHeight) * 0.35;
-            const angles = [
-                Math.PI * 1.25,  // 左上
-                Math.PI * 0.75,  // 右上
-                Math.PI * 1.75,  // 左下
-                Math.PI * 0.25   // 右下
-            ];
-            
-            // 每个模块分配到不同象限
-            modules.forEach((module, i) => {
-                // 随机角度变化 (±15度内)
-                const angleVariation = (Math.random() - 0.5) * Math.PI/6;
-                const angle = angles[i] + angleVariation;
-                
-                // 随机距离变化
-                const distance = radius * (0.8 + Math.random() * 0.4);
-                
-                const x = chipCenter.x + Math.cos(angle) * distance;
-                const y = chipCenter.y + Math.sin(angle) * distance;
-                
-                module.style.left = `${x - 60}px`;
-                module.style.top = `${y - 60}px`;
-                
-                // 延迟显示模块
-                setTimeout(() => {
-                    module.style.opacity = '1';
-                    module.style.transform = 'scale(1)';
-                }, 800 + i * 300);
-            });
-        }
-        
-        function generateCircuitNetwork(chipCenter) {
-            const svg = document.getElementById('circuit-svg');
-            const containerWidth = window.innerWidth;
-            const containerHeight = window.innerHeight;
-            
-            // 芯片四个边的出发点
-            const startPoints = [
-                { x: chipCenter.x, y: chipCenter.y - 60, dir: 'up' },    // 上
-                { x: chipCenter.x + 60, y: chipCenter.y, dir: 'right' },  // 右
-                { x: chipCenter.x, y: chipCenter.y + 60, dir: 'down' },   // 下
-                { x: chipCenter.x - 60, y: chipCenter.y, dir: 'left' }    // 左
-            ];
-            
-            // 生成主线路到模块
-            generateMainLines(chipCenter);
-            
-            // 从每个边生成大量分支线路
-            startPoints.forEach((start, i) => {
-                // 每个边生成8-12条分支线路
-                const branchCount = 8 + Math.floor(Math.random() * 5);
-                
-                for (let j = 0; j < branchCount; j++) {
-                    // 延迟生成每条线路
-                    setTimeout(() => {
-                        generateBranchLine(start, chipCenter, containerWidth, containerHeight, i * branchCount + j);
-                    }, j * 50);
-                }
-            });
-        }
-        
-        function generateMainLines(chipCenter) {
-            const svg = document.getElementById('circuit-svg');
-            const modules = [
-                document.getElementById('tools-module'),
-                document.getElementById('games-module'),
-                document.getElementById('about-module'),
-                document.getElementById('settings-module')
-            ];
-            
-            modules.forEach((module, i) => {
-                const rect = module.getBoundingClientRect();
-                const end = {
-                    x: rect.left + rect.width / 2,
-                    y: rect.top + rect.height / 2
-                };
-                
-                // 创建主线路
-                createLine(chipCenter, end, `main-${i}`, true);
-            });
-        }
-        
-        function generateBranchLine(start, chipCenter, maxWidth, maxHeight, id) {
-            const svg = document.getElementById('circuit-svg');
-            const points = [start];
-            let currentPos = {...start};
-            let currentDir = getInitialDirection(start.dir);
-            let remainingLength = 150 + Math.random() * 300;
-            let lastTurnDir = null;
-            let turnCount = 0;
-            
-            // 生成路径点
-            while (remainingLength > 0 && turnCount < 4) {
-                const segmentLength = Math.min(
-                    remainingLength,
-                    50 + Math.random() * 100
-                );
-                
-                // 计算下一个点
-                let nextPos = {
-                    x: currentPos.x + Math.cos(currentDir) * segmentLength,
-                    y: currentPos.y + Math.sin(currentDir) * segmentLength
-                };
-                
-                // 边界检查
-                if (nextPos.x < 20 || nextPos.x > maxWidth - 20 ||
-                    nextPos.y < 20 || nextPos.y > maxHeight - 20) {
-                    break;
-                }
-                
-                // 随机决定是否转向 (45度)
-                if (Math.random() > 0.7 && turnCount < 3) {
-                    // 不能连续两个相同方向的转弯
-                    let turnDir;
-                    do {
-                        turnDir = Math.random() > 0.5 ? 1 : -1;
-                    } while (turnDir === lastTurnDir);
-                    
-                    currentDir += turnDir * Math.PI/4;
-                    lastTurnDir = turnDir;
-                    turnCount++;
-                }
-                
-                points.push(nextPos);
-                currentPos = nextPos;
-                remainingLength -= segmentLength;
-            }
-            
-            // 创建线路
-            if (points.length > 1) {
-                createLinePath(points, `branch-${id}`);
-                
-                // 在终点添加端点
-                const endPoint = points[points.length - 1];
-                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                circle.setAttribute("cx", endPoint.x);
-                circle.setAttribute("cy", endPoint.y);
-                circle.setAttribute("class", "end-point");
-                circle.setAttribute("data-id", `point-${id}`);
-                svg.appendChild(circle);
-                
-                // 随机延迟动画
-                circle.style.animationDelay = `${Math.random() * 0.5}s`;
-            }
-        }
-        
-        function getInitialDirection(dir) {
-            switch(dir) {
-                case 'up': return -Math.PI/2;
-                case 'right': return 0;
-                case 'down': return Math.PI/2;
-                case 'left': return Math.PI;
-                default: return 0;
-            }
-        }
-        
-        function createLine(start, end, id, isMain = false) {
-            const svg = document.getElementById('circuit-svg');
-            const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            
-            // 创建直线路径
-            const pathData = `M${start.x},${start.y} L${end.x},${end.y}`;
-            line.setAttribute("d", pathData);
-            line.setAttribute("class", isMain ? "circuit-line main-line" : "circuit-line");
-            line.setAttribute("id", `line-${id}`);
-            line.setAttribute("stroke-dasharray", "1000");
-            line.setAttribute("stroke-dashoffset", "1000");
-            
-            // 设置动画延迟
-            line.style.animationDelay = `${Math.random() * 0.3}s`;
-            svg.appendChild(line);
-            
-            // 如果是主线路，添加能量线
-            if (isMain) {
-                const energyLine = line.cloneNode();
-                energyLine.setAttribute("class", "circuit-line energy-line");
-                energyLine.setAttribute("id", `energy-${id}`);
-                energyLine.style.opacity = "0";
-                svg.appendChild(energyLine);
-            }
-        }
-        
-        function createLinePath(points, id) {
-            const svg = document.getElementById('circuit-svg');
-            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            
-            // 构建路径数据
-            let pathData = `M${points[0].x},${points[0].y}`;
-            for (let i = 1; i < points.length; i++) {
-                pathData += ` L${points[i].x},${points[i].y}`;
-            }
-            
-            path.setAttribute("d", pathData);
-            path.setAttribute("class", "circuit-line");
-            path.setAttribute("id", `line-${id}`);
-            path.setAttribute("stroke-dasharray", "1000");
-            path.setAttribute("stroke-dashoffset", "1000");
-            path.style.animationDelay = `${Math.random() * 0.3}s`;
-            svg.appendChild(path);
-        }
-        
-        function setupInteractions() {
-            const modules = [
-                document.getElementById('tools-module'),
-                document.getElementById('games-module'),
-                document.getElementById('about-module'),
-                document.getElementById('settings-module')
-            ];
-            
-            modules.forEach(module => {
-                module.addEventListener('mouseenter', function() {
-                    const energyLine = document.getElementById(`energy-main-${modules.indexOf(this)}`);
-                    if (energyLine) energyLine.style.opacity = "1";
-                });
-                
-                module.addEventListener('mouseleave', function() {
-                    const energyLine = document.getElementById(`energy-main-${modules.indexOf(this)}`);
-                    if (energyLine) energyLine.style.opacity = "0";
-                });
-                
-                module.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // 激活效果
-                    const line = document.getElementById(`line-main-${modules.indexOf(this)}`);
-                    if (line) line.classList.add('active-line');
-                    
-                    // 跳转逻辑
-                    setTimeout(() => {
-                        switch(this.id) {
-                            case 'tools-module':
-                                window.location.href = 'https://tool-zmf.pages.dev';
-                                break;
-                            case 'games-module':
-                                window.location.href = 'https://game-zmf.pages.dev';
-                                break;
-                            case 'about-module':
-                                loadContent('/about/index.html');
-                                break;
-                            case 'settings-module':
-                                loadContent('/setting/index.html');
-                                break;
-                        }
-                    }, 800);
-                });
-            });
-        }
-        
-        function loadContent(url) {
-            // 使用fetch API加载内容
-            fetch(url)
-                .then(response => response.text())
-                .then(html => {
-                    // 这里可以处理加载的内容
-                    window.location.href = url;
-                })
-                .catch(err => {
-                    console.error('加载内容失败:', err);
-                    window.location.href = url;
-                });
-        }
-        
-        function startRandomActivations() {
-            // 随机激活线路和端点
-            setInterval(() => {
-                // 激活随机线路
-                const lines = document.querySelectorAll('.circuit-line:not(.main-line)');
-                const randomLine = lines[Math.floor(Math.random() * lines.length)];
-                if (randomLine) {
-                    randomLine.classList.add('active-line');
-                    setTimeout(() => {
-                        randomLine.classList.remove('active-line');
-                    }, 2000 + Math.random() * 3000);
-                }
-                
-                // 激活随机端点
-                const points = document.querySelectorAll('.end-point');
-                const randomPoint = points[Math.floor(Math.random() * points.length)];
-                if (randomPoint) {
-                    randomPoint.classList.add('active-point');
-                    setTimeout(() => {
-                        randomPoint.classList.remove('active-point');
-                    }, 1500 + Math.random() * 2500);
-                }
-            }, 800);
-        }
     </script>
 </body>
 </html>
