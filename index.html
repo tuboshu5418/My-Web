@@ -3,704 +3,531 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZMF - 量子核心</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#0a192f',
-                        secondary: '#112240',
-                        accent: '#64ffda',
-                        dark: '#020c1b',
-                        light: '#ccd6f6',
-                        muted: '#8892b0',
-                        'chip-dark': '#05101f',
-                        'chip-light': '#0a192f',
-                        'channel': '#38bdf8',
-                        'pulse': '#a78bfa',
-                        'glow': 'rgba(100, 255, 218, 0.3)'
-                    },
-                    fontFamily: {
-                        inter: ['Inter', 'sans-serif'],
-                    },
-                }
-            }
+    <title>ZMF - 科技前沿</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0a192f;
+            --secondary-color: #172a45;
+            --accent-color: #64ffda;
+            --text-color: #ccd6f6;
+            --dark-accent: #1e3a8a;
         }
-    </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .chip-container {
-                perspective: 1000px;
-            }
-            .chip-3d {
-                transform-style: preserve-3d;
-                animation: rotateChip 20s infinite linear;
-            }
-            .chip-border {
-                position: absolute;
-                inset: -2px;
-                border-radius: 8px;
-                background: linear-gradient(45deg, #64ffda, #0a192f, #64ffda);
-                background-size: 400% 400%;
-                animation: border-animate 6s ease infinite;
-                z-index: -1;
-            }
-            .chip-grid {
-                background-size: 15px 15px;
-                background-image: 
-                    linear-gradient(to right, rgba(100, 255, 218, 0.05) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(100, 255, 218, 0.05) 1px, transparent 1px);
-            }
-            .node {
-                position: absolute;
-                width: 18px;
-                height: 18px;
-                border-radius: 50%;
-                background: radial-gradient(circle, rgba(100, 255, 218, 1) 0%, rgba(10, 25, 47, 1) 70%);
-                transform: translate(-50%, -50%);
-                transition: all 0.3s ease;
-                box-shadow: 0 0 15px var(--glow);
-            }
-            .node-active {
-                transform: translate(-50%, -50%) scale(1.8);
-                box-shadow: 0 0 25px rgba(100, 255, 218, 0.8);
-            }
-            .menu-item {
-                background: linear-gradient(135deg, rgba(17, 34, 64, 0.8) 0%, rgba(10, 25, 47, 0.9) 100%);
-                backdrop-filter: blur(5px);
-                border: 1px solid rgba(100, 255, 218, 0.1);
-                transition: all 0.3s ease;
-            }
-            .menu-item-hover {
-                transform: translateY(-5px);
-                box-shadow: 0 0 20px var(--glow);
-                border: 1px solid rgba(100, 255, 218, 0.3);
-            }
-            .pulse-wave {
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                border-radius: 50%;
-                background: radial-gradient(circle, rgba(100, 255, 218, 0.3) 0%, rgba(100, 255, 218, 0) 70%);
-                animation: pulse-wave 2s infinite;
-                opacity: 0;
-            }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-
-        @keyframes border-animate {
-            0% {
-                background-position: 0% 50%;
-                filter: hue-rotate(0deg);
-            }
-            50% {
-                background-position: 100% 50%;
-                filter: hue-rotate(180deg);
-            }
-            100% {
-                background-position: 0% 50%;
-                filter: hue-rotate(360deg);
-            }
+        
+        body {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            height: 100vh;
         }
-
-        @keyframes rotateChip {
-            0% {
-                transform: rotateX(5deg) rotateY(0deg);
-            }
-            25% {
-                transform: rotateX(5deg) rotateY(15deg);
-            }
-            50% {
-                transform: rotateX(5deg) rotateY(0deg);
-            }
-            75% {
-                transform: rotateX(5deg) rotateY(-15deg);
-            }
-            100% {
-                transform: rotateX(5deg) rotateY(0deg);
-            }
+        
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
         }
-
-        @keyframes pulse-wave {
-            0% {
-                transform: scale(0.5);
-                opacity: 0;
-            }
-            50% {
-                opacity: 0.8;
-            }
-            100% {
-                transform: scale(2);
-                opacity: 0;
-            }
+        
+        .content {
+            position: relative;
+            z-index: 2;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
-
+        
+        .chip-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin-bottom: 50px;
+        }
+        
+        .chip {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: var(--secondary-color);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        
+        .chip::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(100, 255, 218, 0.1), transparent);
+            animation: shine 3s infinite;
+        }
+        
+        .chip-text {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+            animation: blink 1.5s 3;
+        }
+        
+        .chip-border {
+            position: absolute;
+            width: calc(100% + 10px);
+            height: calc(100% + 10px);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            top: -5px;
+            left: -5px;
+            animation: borderGlow 2s 3s forwards;
+        }
+        
+        .menu-items {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            opacity: 0;
+            animation: fadeIn 1s 4s forwards;
+        }
+        
+        .menu-item {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-color);
+        }
+        
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(100, 255, 218, 0.3);
+        }
+        
+        .menu-item i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+        }
+        
+        .menu-item .dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .menu-item:hover .dot {
+            opacity: 1;
+        }
+        
+        .trail-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0.8;
+        }
+        
         @keyframes blink {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.3;
-            }
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
         }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
+        
+        @keyframes borderGlow {
+            0% { border-color: transparent; box-shadow: 0 0 0 rgba(100, 255, 218, 0); }
+            100% { border-color: var(--accent-color); box-shadow: 0 0 20px rgba(100, 255, 218, 0.5); }
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="bg-dark font-inter text-light min-h-screen flex items-center justify-center overflow-hidden">
-    <!-- 主画布 -->
-    <canvas id="canvas" class="fixed top-0 left-0 w-full h-full z-0"></canvas>
+<body>
+    <canvas id="canvas"></canvas>
     
-    <!-- 内容容器 -->
-    <div class="relative z-10 w-full max-w-6xl px-4 py-8">
-        <!-- ZMF芯片 -->
-        <div id="chip-container" class="chip-container relative mx-auto mb-20 opacity-0 transition-opacity duration-1000">
-            <div class="chip-3d relative w-40 h-40">
-                <div class="chip relative w-full h-full bg-gradient-to-br from-chip-dark to-chip-light rounded-lg flex items-center justify-center overflow-hidden chip-grid">
-                    <div class="chip-border"></div>
-                    <span id="chip-text" class="text-accent text-[clamp(2rem,5vw,3rem)] font-bold tracking-widest opacity-0 transition-opacity duration-500">ZMF</span>
-                    <!-- 芯片引脚 -->
-                    <div class="absolute inset-0 pointer-events-none">
-                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/50 to-transparent"></div>
-                        <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent/50 to-transparent"></div>
-                        <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-transparent via-accent/50 to-transparent"></div>
-                        <div class="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-transparent via-accent/50 to-transparent"></div>
-                    </div>
-                </div>
+    <div class="content">
+        <div class="chip-container">
+            <div class="chip">
+                <span class="chip-text">ZMF</span>
             </div>
+            <div class="chip-border"></div>
         </div>
         
-        <!-- 菜单节点 -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mt-10">
-            <a href="https://game-zmf.pages.dev" class="menu-item relative flex flex-col items-center justify-center w-full h-40 rounded-lg p-4 transition-all duration-300 hover:menu-item-hover group">
-                <div class="node absolute top-0 left-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                    <div class="pulse-wave"></div>
-                </div>
-                <i class="fa fa-gamepad text-accent text-3xl mb-3 transition-transform duration-300 group-hover:scale-125"></i>
-                <h3 class="text-lg font-semibold tracking-wide">游戏</h3>
+        <div class="menu-items">
+            <a href="https://game-zmf.pages.dev" class="menu-item" data-target="game">
+                <i class="fas fa-gamepad"></i>
+                <span>游戏</span>
+                <div class="dot"></div>
             </a>
-            
-            <a href="https://tool-zmf.pages.dev" class="menu-item relative flex flex-col items-center justify-center w-full h-40 rounded-lg p-4 transition-all duration-300 hover:menu-item-hover group">
-                <div class="node absolute top-0 left-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                    <div class="pulse-wave"></div>
-                </div>
-                <i class="fa fa-wrench text-accent text-3xl mb-3 transition-transform duration-300 group-hover:scale-125"></i>
-                <h3 class="text-lg font-semibold tracking-wide">工具</h3>
+            <a href="https://tool-zmf.pages.dev" class="menu-item" data-target="tool">
+                <i class="fas fa-tools"></i>
+                <span>工具</span>
+                <div class="dot"></div>
             </a>
-            
-            <a href="/settings/index.html" class="menu-item relative flex flex-col items-center justify-center w-full h-40 rounded-lg p-4 transition-all duration-300 hover:menu-item-hover group">
-                <div class="node absolute top-0 left-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                    <div class="pulse-wave"></div>
-                </div>
-                <i class="fa fa-cog text-accent text-3xl mb-3 transition-transform duration-300 group-hover:scale-125"></i>
-                <h3 class="text-lg font-semibold tracking-wide">设置</h3>
+            <a href="/settings/index.html" class="menu-item" data-target="settings">
+                <i class="fas fa-cog"></i>
+                <span>设置</span>
+                <div class="dot"></div>
             </a>
-            
-            <a href="/about/index.html" class="menu-item relative flex flex-col items-center justify-center w-full h-40 rounded-lg p-4 transition-all duration-300 hover:menu-item-hover group">
-                <div class="node absolute top-0 left-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                    <div class="pulse-wave"></div>
-                </div>
-                <i class="fa fa-info-circle text-accent text-3xl mb-3 transition-transform duration-300 group-hover:scale-125"></i>
-                <h3 class="text-lg font-semibold tracking-wide">关于</h3>
+            <a href="/about/index.html" class="menu-item" data-target="about">
+                <i class="fas fa-info-circle"></i>
+                <span>关于</span>
+                <div class="dot"></div>
             </a>
         </div>
     </div>
-
+    
     <script>
-        // 初始化画布
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-        
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        
-        // 总线类 - 支持45度角和线路重叠
-        class Bus {
-            constructor(startX, startY, endX, endY, isPrimary = false, busGroup = 0) {
-                this.startX = startX;
-                this.startY = startY;
-                this.endX = endX;
-                this.endY = endY;
-                this.points = [{x: startX, y: startY}];
-                this.isPrimary = isPrimary;
-                this.complete = false;
-                this.speed = 4 + Math.random() * 3;
-                this.currentPoint = 0;
-                this.active = false;
-                this.activeProgress = 0;
-                this.activeSpeed = 0.05 + Math.random() * 0.03;
-                this.busGroup = busGroup; // 用于区分不同线路组，实现重叠效果
-                
-                // 根据组设置颜色
-                this.setColorByGroup();
-                
-                // 生成路径点
-                this.generatePath();
-            }
-            
-            setColorByGroup() {
-                const colors = [
-                    'rgba(100, 255, 218, 0.8)', // 主色
-                    'rgba(56, 189, 248, 0.8)',  // 蓝色1
-                    'rgba(167, 139, 250, 0.8)', // 紫色
-                    'rgba(244, 114, 182, 0.8)'  // 粉色
-                ];
-                
-                this.color = colors[this.busGroup % colors.length];
-                this.fillColor = this.color.replace('0.8', '0.3');
-            }
-            
-            generatePath() {
-                const pathPoints = [];
-                const midPoints = 1 + Math.floor(Math.random() * 3); // 1-3个中间点
-                
-                // 当前位置
-                let currentX = this.startX;
-                let currentY = this.startY;
-                
-                // 计算总距离
-                const totalDistance = Math.sqrt(
-                    Math.pow(this.endX - this.startX, 2) + 
-                    Math.pow(this.endY - this.startY, 2)
-                );
-                
-                // 每个段的目标距离
-                const segmentDistance = totalDistance / (midPoints + 1);
-                
-                for (let i = 1; i <= midPoints; i++) {
-                    // 计算到终点的方向和距离
-                    const dx = this.endX - currentX;
-                    const dy = this.endY - currentY;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (distance <= segmentDistance) {
-                        // 如果剩余距离不足以形成新段，直接跳到终点前
-                        currentX = this.endX - dx * 0.3;
-                        currentY = this.endY - dy * 0.3;
-                        pathPoints.push({x: currentX, y: currentY});
-                        break;
-                    }
-                    
-                    // 随机选择方向（允许45度角）
-                    const angleOptions = [
-                        Math.atan2(dy, dx), // 直接朝向终点
-                        Math.atan2(dy, dx) + Math.PI/4, // 45度角
-                        Math.atan2(dy, dx) - Math.PI/4, // -45度角
-                        Math.atan2(dy, dx) + Math.PI/2, // 90度角
-                        Math.atan2(dy, dx) - Math.PI/2  // -90度角
-                    ];
-                    
-                    // 随机选择一个角度，但偏向直接朝向终点的方向
-                    const randomIndex = Math.random() < 0.6 ? 0 : Math.floor(Math.random() * (angleOptions.length - 1)) + 1;
-                    const angle = angleOptions[randomIndex];
-                    
-                    // 计算新点位置
-                    currentX += Math.cos(angle) * segmentDistance;
-                    currentY += Math.sin(angle) * segmentDistance;
-                    
-                    // 添加随机偏移，使线路更自然
-                    currentX += (Math.random() - 0.5) * 30;
-                    currentY += (Math.random() - 0.5) * 30;
-                    
-                    pathPoints.push({x: currentX, y: currentY});
-                }
-                
-                // 添加终点
-                pathPoints.push({x: this.endX, y: this.endY});
-                
-                // 存储完整路径
-                this.pathPoints = pathPoints;
-            }
-            
-            update() {
-                if (this.complete) return;
-                
-                // 计算到下一个点的距离
-                if (this.currentPoint < this.pathPoints.length) {
-                    const nextPoint = this.pathPoints[this.currentPoint];
-                    const dx = nextPoint.x - this.points[this.points.length - 1].x;
-                    const dy = nextPoint.y - this.points[this.points.length - 1].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (distance > this.speed) {
-                        // 移动一小段距离
-                        const ratio = this.speed / distance;
-                        const newX = this.points[this.points.length - 1].x + dx * ratio;
-                        const newY = this.points[this.points.length - 1].y + dy * ratio;
-                        this.points.push({x: newX, y: newY});
-                    } else {
-                        // 到达下一个点
-                        this.points.push({...nextPoint});
-                        this.currentPoint++;
-                    }
-                } else {
-                    this.complete = true;
-                }
-                
-                // 更新激活状态
-                if (this.active && this.activeProgress < 1) {
-                    this.activeProgress += this.activeSpeed;
-                }
-            }
-            
-            draw() {
-                if (this.points.length < 2) return;
-                
-                // 绘制总线主体
-                ctx.beginPath();
-                ctx.moveTo(this.points[0].x, this.points[0].y);
-                
-                for (let i = 1; i < this.points.length; i++) {
-                    ctx.lineTo(this.points[i].x, this.points[i].y);
-                }
-                
-                ctx.strokeStyle = this.color;
-                ctx.lineWidth = this.isPrimary ? 3 : 2;
-                ctx.stroke();
-                
-                // 绘制总线填充（增加立体感）
-                ctx.beginPath();
-                ctx.moveTo(this.points[0].x, this.points[0].y);
-                
-                for (let i = 1; i < this.points.length; i++) {
-                    ctx.lineTo(this.points[i].x, this.points[i].y);
-                }
-                
-                ctx.lineWidth = this.isPrimary ? 5 : 3;
-                ctx.strokeStyle = this.fillColor;
-                ctx.stroke();
-                
-                // 绘制激活效果 - 电子脉冲
-                if (this.active && this.activeProgress > 0) {
-                    const pulseLength = 15; // 脉冲长度
-                    const activeLength = this.points.length * this.activeProgress;
-                    const startIndex = Math.max(0, Math.floor(activeLength - pulseLength));
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(this.points[startIndex].x, this.points[startIndex].y);
-                    
-                    for (let i = startIndex + 1; i <= Math.floor(activeLength); i++) {
-                        if (i < this.points.length) {
-                            ctx.lineTo(this.points[i].x, this.points[i].y);
-                        }
-                    }
-                    
-                    // 脉冲颜色渐变
-                    const pulseColor = `rgba(167, 139, 250, ${Math.sin(this.activeProgress * Math.PI) * 0.8})`;
-                    ctx.strokeStyle = pulseColor;
-                    ctx.lineWidth = this.isPrimary ? 6 : 4;
-                    ctx.stroke();
-                }
-                
-                // 绘制端点
-                if (this.complete) {
-                    ctx.beginPath();
-                    ctx.arc(this.endX, this.endY, 6, 0, Math.PI * 2);
-                    ctx.fillStyle = this.color.replace('0.8', '1');
-                    ctx.fill();
-                }
-            }
-            
-            activate() {
-                this.active = true;
-                this.activeProgress = 0;
-            }
-        }
-        
-        // 电子粒子类
-        class Electron {
-            constructor(bus) {
-                this.bus = bus;
-                this.progress = 0;
-                this.speed = 0.01 + Math.random() * 0.02; // 每个粒子速度不同
-                this.size = 1 + Math.random();
-                this.color = this.getRandomColor();
-                this.reset();
-            }
-            
-            getRandomColor() {
-                const colors = ['#64ffda', '#38bdf8', '#a78bfa', '#f472b6'];
-                return colors[Math.floor(Math.random() * colors.length)];
-            }
-            
-            reset() {
-                this.progress = 0;
-                // 随机延迟
-                setTimeout(() => {
-                    this.active = true;
-                }, Math.random() * 5000);
-            }
-            
-            update() {
-                if (!this.active) return;
-                
-                this.progress += this.speed;
-                
-                if (this.progress >= 1) {
-                    this.reset();
-                }
-            }
-            
-            draw() {
-                if (!this.active) return;
-                
-                // 计算粒子在总线上的位置
-                const pointIndex = Math.floor(this.progress * (this.bus.points.length - 1));
-                const nextPointIndex = Math.min(pointIndex + 1, this.bus.points.length - 1);
-                
-                if (pointIndex >= 0 && nextPointIndex < this.bus.points.length) {
-                    const p1 = this.bus.points[pointIndex];
-                    const p2 = this.bus.points[nextPointIndex];
-                    
-                    // 计算插值位置
-                    const t = this.progress * (this.bus.points.length - 1) - pointIndex;
-                    const x = p1.x + t * (p2.x - p1.x);
-                    const y = p1.y + t * (p2.y - p1.y);
-                    
-                    // 绘制粒子
-                    ctx.beginPath();
-                    ctx.arc(x, y, this.size, 0, Math.PI * 2);
-                    ctx.fillStyle = this.color;
-                    ctx.fill();
-                    
-                    // 绘制粒子尾迹
-                    const trailLength = 5;
-                    for (let i = 1; i <= trailLength; i++) {
-                        const trailProgress = Math.max(0, this.progress - i * 0.02);
-                        const trailPointIndex = Math.floor(trailProgress * (this.bus.points.length - 1));
-                        const trailNextPointIndex = Math.min(trailPointIndex + 1, this.bus.points.length - 1);
-                        
-                        if (trailPointIndex >= 0 && trailNextPointIndex < this.bus.points.length) {
-                            const tp1 = this.bus.points[trailPointIndex];
-                            const tp2 = this.bus.points[trailNextPointIndex];
-                            
-                            const trailT = trailProgress * (this.bus.points.length - 1) - trailPointIndex;
-                            const trailX = tp1.x + trailT * (tp2.x - tp1.x);
-                            const trailY = tp1.y + trailT * (tp2.y - tp1.y);
-                            
-                            const alpha = 1 - (i / trailLength);
-                            ctx.beginPath();
-                            ctx.arc(trailX, trailY, this.size * (1 - (i / (trailLength * 2))), 0, Math.PI * 2);
-                            ctx.fillStyle = this.color.replace(')', `, ${alpha})`);
-                            ctx.fill();
-                        }
-                    }
-                }
-            }
-        }
-        
-        // 主函数
+        // 芯片动画
         document.addEventListener('DOMContentLoaded', () => {
-            // 显示芯片
-            setTimeout(() => {
-                document.getElementById('chip-container').classList.add('opacity-100');
-                
-                // 闪烁动画
-                const chipText = document.getElementById('chip-text');
-                chipText.style.opacity = '1';
-                chipText.style.animation = 'blink 0.5s 3';
-                
-                // 显示芯片边框
-                setTimeout(() => {
-                    chipText.style.animation = 'none';
-                    
-                    // 开始生成总线
-                    generateBuses();
-                    
-                    // 显示菜单
-                    setTimeout(() => {
-                        const menuItems = document.querySelectorAll('.menu-item');
-                        menuItems.forEach((item, index) => {
-                            setTimeout(() => {
-                                item.style.opacity = '1';
-                                item.style.transform = 'translateY(0)';
-                            }, index * 200);
-                        });
-                    }, 1000);
-                }, 1500);
-            }, 500);
+            // 线路动画
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
             
-            // 总线集合
-            let buses = [];
-            // 电子粒子集合
-            let electrons = [];
-            
-            // 生成总线
-            function generateBuses() {
-                const chipContainer = document.getElementById('chip-container');
-                const chipRect = chipContainer.getBoundingClientRect();
-                const chipCenter = {
-                    x: chipRect.left + chipRect.width / 2,
-                    y: chipRect.top + chipRect.height / 2
-                };
-                
-                const menuItems = document.querySelectorAll('.menu-item');
-                
-                // 创建主线路
-                menuItems.forEach((item, index) => {
-                    const itemRect = item.getBoundingClientRect();
-                    const itemCenter = {
-                        x: itemRect.left + itemRect.width / 2,
-                        y: itemRect.top + itemRect.height / 2
-                    };
-                    
-                    // 延迟生成每条总线
-                    setTimeout(() => {
-                        const bus = new Bus(chipCenter.x, chipCenter.y, itemCenter.x, itemCenter.y, true, index);
-                        buses.push(bus);
-                        
-                        // 总线生成完成后，显示节点
-                        setTimeout(() => {
-                            const nodes = item.querySelectorAll('.node');
-                            nodes.forEach(node => {
-                                node.style.opacity = '1';
-                            });
-                            
-                            // 添加悬停事件
-                            item.addEventListener('mouseenter', () => {
-                                bus.activate();
-                            });
-                            
-                            // 创建电子粒子
-                            for (let i = 0; i < 5; i++) {
-                                setTimeout(() => {
-                                    electrons.push(new Electron(bus));
-                                }, i * 1000);
-                            }
-                        }, 1000);
-                    }, index * 800);
-                });
-                
-                // 创建重叠的辅助线路，增强未来感
-                setTimeout(() => {
-                    createOverlappingLines();
-                }, 5000);
+            // 设置canvas尺寸
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
             }
             
-            // 创建重叠的辅助线路
-            function createOverlappingLines() {
-                const chipContainer = document.getElementById('chip-container');
-                const chipRect = chipContainer.getBoundingClientRect();
-                const chipCenter = {
-                    x: chipRect.left + chipRect.width / 2,
-                    y: chipRect.top + chipRect.height / 2
-                };
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            
+            // 芯片位置
+            const chip = document.querySelector('.chip-container');
+            const chipRect = chip.getBoundingClientRect();
+            const chipCenter = {
+                x: chipRect.left + chipRect.width / 2,
+                y: chipRect.top + chipRect.height / 2
+            };
+            
+            // 菜单项位置
+            const menuItems = document.querySelectorAll('.menu-item');
+            const targets = [];
+            
+            menuItems.forEach(item => {
+                const rect = item.getBoundingClientRect();
+                targets.push({
+                    x: rect.left + rect.width / 2,
+                    y: rect.top + rect.height / 2,
+                    id: item.dataset.target
+                });
+            });
+            
+            // 线路类
+            class Circuit {
+                constructor(startX, startY, endX, endY, color = '#64ffda') {
+                    this.startX = startX;
+                    this.startY = startY;
+                    this.endX = endX;
+                    this.endY = endY;
+                    this.color = color;
+                    this.path = [];
+                    this.currentX = startX;
+                    this.currentY = startY;
+                    this.speed = 2;
+                    this.progress = 0;
+                    this.segments = this.generatePath();
+                    this.active = false;
+                    this.activeProgress = 0;
+                }
                 
-                const menuItems = document.querySelectorAll('.menu-item');
+                generatePath() {
+                    const segments = [];
+                    const midPoints = [];
+                    
+                    // 简单路径 - 可以扩展为更复杂的随机路径
+                    const dx = this.endX - this.startX;
+                    const dy = this.endY - this.startY;
+                    
+                    // 添加控制点使路径弯曲
+                    const cp1x = this.startX + dx * 0.3 + (Math.random() - 0.5) * 100;
+                    const cp1y = this.startY + dy * 0.3 + (Math.random() - 0.5) * 100;
+                    const cp2x = this.startX + dx * 0.7 + (Math.random() - 0.5) * 100;
+                    const cp2y = this.startY + dy * 0.7 + (Math.random() - 0.5) * 100;
+                    
+                    // 贝塞尔曲线分段
+                    for (let t = 0; t <= 1; t += 0.01) {
+                        const x = Math.pow(1-t, 3) * this.startX + 
+                                  3 * Math.pow(1-t, 2) * t * cp1x + 
+                                  3 * (1-t) * Math.pow(t, 2) * cp2x + 
+                                  Math.pow(t, 3) * this.endX;
+                        const y = Math.pow(1-t, 3) * this.startY + 
+                                  3 * Math.pow(1-t, 2) * t * cp1y + 
+                                  3 * (1-t) * Math.pow(t, 2) * cp2y + 
+                                  Math.pow(t, 3) * this.endY;
+                        segments.push({x, y});
+                    }
+                    
+                    return segments;
+                }
                 
-                // 创建额外的重叠线路
-                for (let i = 0; i < 10; i++) {
-                    // 随机选择两个菜单项
-                    const randomIndex1 = Math.floor(Math.random() * menuItems.length);
-                    const randomIndex2 = (randomIndex1 + 1 + Math.floor(Math.random() * (menuItems.length - 1))) % menuItems.length;
+                update() {
+                    if (this.progress < 1) {
+                        this.progress += 0.005 * this.speed;
+                        const index = Math.min(Math.floor(this.progress * (this.segments.length - 1)), this.segments.length - 1);
+                        this.currentX = this.segments[index].x;
+                        this.currentY = this.segments[index].y;
+                    }
                     
-                    const item1 = menuItems[randomIndex1];
-                    const item2 = menuItems[randomIndex2];
+                    if (this.active && this.activeProgress < 1) {
+                        this.activeProgress += 0.02;
+                    }
+                }
+                
+                draw(ctx) {
+                    ctx.beginPath();
+                    ctx.moveTo(this.startX, this.startY);
                     
-                    const rect1 = item1.getBoundingClientRect();
-                    const rect2 = item2.getBoundingClientRect();
-                    
-                    const center1 = {
-                        x: rect1.left + rect1.width / 2,
-                        y: rect1.top + rect1.height / 2
-                    };
-                    
-                    const center2 = {
-                        x: rect2.left + rect2.width / 2,
-                        y: rect2.top + rect2.height / 2
-                    };
-                    
-                    // 随机延迟创建线路
-                    setTimeout(() => {
-                        // 50%的概率从芯片到菜单项，50%的概率从菜单项到菜单项
-                        if (Math.random() > 0.5) {
-                            // 从芯片到菜单项
-                            const bus = new Bus(chipCenter.x, chipCenter.y, center1.x, center1.y, false, i % 4);
-                            buses.push(bus);
-                            
-                            // 为这些线路添加电子粒子
-                            setTimeout(() => {
-                                for (let j = 0; j < 3; j++) {
-                                    electrons.push(new Electron(bus));
-                                }
-                            }, 1000);
+                    // 绘制路径
+                    for (let i = 0; i < this.segments.length * this.progress; i++) {
+                        const segment = this.segments[i];
+                        if (i === 0) {
+                            ctx.moveTo(segment.x, segment.y);
                         } else {
-                            // 从菜单项到菜单项
-                            const bus = new Bus(center1.x, center1.y, center2.x, center2.y, false, i % 4);
-                            buses.push(bus);
-                            
-                            // 为这些线路添加电子粒子
-                            setTimeout(() => {
-                                for (let j = 0; j < 3; j++) {
-                                    electrons.push(new Electron(bus));
-                                }
-                            }, 1000);
+                            ctx.lineTo(segment.x, segment.y);
                         }
-                    }, i * 800);
+                    }
+                    
+                    ctx.strokeStyle = this.color;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    // 绘制激活效果
+                    if (this.activeProgress > 0) {
+                        ctx.beginPath();
+                        const activeIndex = Math.floor(this.activeProgress * (this.segments.length - 1));
+                        const startActive = Math.max(0, activeIndex - 10);
+                        
+                        for (let i = startActive; i <= activeIndex; i++) {
+                            const segment = this.segments[i];
+                            if (i === startActive) {
+                                ctx.moveTo(segment.x, segment.y);
+                            } else {
+                                ctx.lineTo(segment.x, segment.y);
+                            }
+                        }
+                        
+                        ctx.strokeStyle = 'rgba(100, 255, 218, 0.7)';
+                        ctx.lineWidth = 4;
+                        ctx.stroke();
+                    }
+                    
+                    // 绘制端点
+                    if (this.progress >= 1) {
+                        ctx.beginPath();
+                        ctx.arc(this.endX, this.endY, 5, 0, Math.PI * 2);
+                        ctx.fillStyle = this.color;
+                        ctx.fill();
+                    }
+                }
+                
+                activate() {
+                    this.active = true;
+                    this.activeProgress = 0;
                 }
             }
+            
+            // 创建线路
+            const circuits = [];
+            
+            targets.forEach(target => {
+                const circuit = new Circuit(chipCenter.x, chipCenter.y, target.x, target.y);
+                circuits.push(circuit);
+            });
+            
+            // 尾迹点类
+            class TrailDot {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 4 + 2;
+                    this.speed = Math.random() * 2 + 1;
+                    this.angle = Math.random() * Math.PI * 2;
+                    this.trail = [];
+                    this.maxTrail = 10;
+                    this.target = null;
+                    this.orbitRadius = 0;
+                    this.orbitAngle = Math.random() * Math.PI * 2;
+                    this.orbitSpeed = Math.random() * 0.05 + 0.02;
+                    this.state = 'wander'; // 'wander', 'orbit', 'follow'
+                }
+                
+                update(mouse) {
+                    // 保存当前位置到轨迹
+                    this.trail.push({x: this.x, y: this.y});
+                    if (this.trail.length > this.maxTrail) {
+                        this.trail.shift();
+                    }
+                    
+                    if (this.state === 'wander') {
+                        // 随机游走
+                        this.angle += (Math.random() - 0.5) * 0.5;
+                        this.x += Math.cos(this.angle) * this.speed;
+                        this.y += Math.sin(this.angle) * this.speed;
+                        
+                        // 边界检查
+                        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                            this.angle = Math.atan2(canvas.height/2 - this.y, canvas.width/2 - this.x);
+                        }
+                        
+                        // 检查鼠标接近
+                        if (mouse && Math.sqrt((mouse.x - this.x) ** 2 + (mouse.y - this.y) ** 2) < 100) {
+                            this.state = 'orbit';
+                            this.orbitRadius = Math.random() * 50 + 50;
+                            this.orbitAngle = Math.atan2(this.y - mouse.y, this.x - mouse.x);
+                        }
+                    } else if (this.state === 'orbit') {
+                        // 绕鼠标旋转
+                        if (mouse) {
+                            this.orbitAngle += this.orbitSpeed;
+                            this.x = mouse.x + Math.cos(this.orbitAngle) * this.orbitRadius;
+                            this.y = mouse.y + Math.sin(this.orbitAngle) * this.orbitRadius;
+                            
+                            // 检查鼠标远离
+                            if (Math.sqrt((mouse.x - this.x) ** 2 + (mouse.y - this.y) ** 2) > 150) {
+                                this.state = 'follow';
+                                this.target = {x: mouse.x, y: mouse.y};
+                            }
+                        } else {
+                            this.state = 'wander';
+                        }
+                    } else if (this.state === 'follow') {
+                        // 跟随鼠标
+                        if (mouse) {
+                            this.target = {x: mouse.x, y: mouse.y};
+                            const dx = this.target.x - this.x;
+                            const dy = this.target.y - this.y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (distance < 5) {
+                                this.state = 'orbit';
+                                this.orbitRadius = Math.random() * 50 + 50;
+                                this.orbitAngle = Math.atan2(this.y - mouse.y, this.x - mouse.x);
+                            } else {
+                                this.x += dx / distance * this.speed;
+                                this.y += dy / distance * this.speed;
+                            }
+                        } else {
+                            this.state = 'wander';
+                        }
+                    }
+                }
+                
+                draw(ctx) {
+                    // 绘制轨迹
+                    for (let i = 0; i < this.trail.length; i++) {
+                        const point = this.trail[i];
+                        const alpha = i / this.trail.length;
+                        ctx.beginPath();
+                        ctx.arc(point.x, point.y, this.size * alpha, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(100, 255, 218, ${alpha * 0.5})`;
+                        ctx.fill();
+                    }
+                    
+                    // 绘制当前点
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(100, 255, 218, 0.8)';
+                    ctx.fill();
+                }
+            }
+            
+            // 创建尾迹点
+            const trailDots = [];
+            for (let i = 0; i < 10; i++) {
+                trailDots.push(new TrailDot());
+            }
+            
+            // 鼠标位置
+            let mouse = null;
+            window.addEventListener('mousemove', (e) => {
+                mouse = {x: e.clientX, y: e.clientY};
+            });
+            
+            window.addEventListener('mouseout', () => {
+                mouse = null;
+            });
+            
+            // 菜单项悬停效果
+            menuItems.forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    const targetId = item.dataset.target;
+                    circuits.forEach(circuit => {
+                        const target = targets.find(t => t.id === targetId);
+                        if (target && circuit.endX === target.x && circuit.endY === target.y) {
+                            circuit.activate();
+                        }
+                    });
+                });
+            });
+            
+            // 随机激活线路
+            function randomActivateCircuit() {
+                const inactiveCircuits = circuits.filter(c => !c.active && c.progress >= 1);
+                if (inactiveCircuits.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * inactiveCircuits.length);
+                    inactiveCircuits[randomIndex].activate();
+                }
+            }
+            
+            setInterval(randomActivateCircuit, 3000);
             
             // 动画循环
             function animate() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                // 绘制主板背景网格
-                drawMotherboardGrid();
-                
-                // 绘制总线（按组排序，使不同组的线路可以重叠显示）
-                buses.sort((a, b) => a.busGroup - b.busGroup).forEach(bus => {
-                    bus.update();
-                    bus.draw();
+                // 绘制线路
+                circuits.forEach(circuit => {
+                    circuit.update();
+                    circuit.draw(ctx);
                 });
                 
-                // 绘制电子粒子
-                electrons.forEach(electron => {
-                    electron.update();
-                    electron.draw();
+                // 绘制尾迹点
+                trailDots.forEach(dot => {
+                    dot.update(mouse);
+                    dot.draw(ctx);
                 });
                 
                 requestAnimationFrame(animate);
-            }
-            
-            // 绘制主板背景网格
-            function drawMotherboardGrid() {
-                const gridSize = 40;
-                const gridColor = 'rgba(100, 255, 218, 0.05)';
-                
-                ctx.strokeStyle = gridColor;
-                ctx.lineWidth = 1;
-                
-                // 绘制垂直线
-                for (let x = 0; x < canvas.width; x += gridSize) {
-                    ctx.beginPath();
-                    ctx.moveTo(x, 0);
-                    ctx.lineTo(x, canvas.height);
-                    ctx.stroke();
-                }
-                
-                // 绘制水平线
-                for (let y = 0; y < canvas.height; y += gridSize) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(canvas.width, y);
-                    ctx.stroke();
-                }
             }
             
             animate();
