@@ -2,194 +2,239 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZMF</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZMF - 量子核心</title>
     <style>
+        /* 全局样式 - 科幻氛围 */
         :root {
-            --dark-blue: #0a192f;
-            --light-blue: #64ffda;
-            --medium-blue: #1e3a8a;
-            --highlight-blue: #00b4d8;
+            --primary: #0a192f;
+            --neon: #64ffda;
+            --dark: #070e1e;
+            --glow: rgba(100, 255, 218, 0.3);
+            --speed: 1.8s;
+            font-family: 'Space Grotesk', sans-serif;
+            overflow: hidden;
         }
 
         body {
-            background-color: var(--dark-blue);
             margin: 0;
-            overflow: hidden;
-            font-family: 'Courier New', monospace;
+            background: var(--dark);
             color: white;
+            min-height: 100vh;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        /* 预加载器 - 粒子矩阵 */
+        #preloader {
+            position: fixed;
+            width: 100vw;
             height: 100vh;
+            background: var(--dark);
+            z-index: 9999;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-
-        .central-chip {
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-        }
-
-        .chip-border {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border: 2px solid var(--light-blue);
-            border-radius: 5px;
-            box-shadow: 0 0 15px var(--light-blue);
-            animation: pulse 3s infinite ease-in-out;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 15px var(--light-blue); }
-            50% { box-shadow: 0 0 30px var(--highlight-blue); }
-            100% { box-shadow: 0 0 15px var(--light-blue); }
-        }
-
-        .chip-text {
-            font-size: 3rem;
-            font-weight: bold;
-            color: var(--light-blue);
-            text-shadow: 0 0 10px var(--light-blue);
-        }
-
-        .sections {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: 20;
-        }
-
-        .section {
-            position: absolute;
-            width: 180px;
-            height: 180px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: var(--light-blue);
-            text-decoration: none;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            opacity: 0.9;
-        }
-
-        .section:hover {
-            transform: scale(1.1);
-            opacity: 1;
-        }
-
-        .section-icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            text-shadow: 0 0 10px currentColor;
-        }
-
-        .section-title {
-            font-size: 1.2rem;
-        }
-
-        .particles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
         }
 
         .particle {
             position: absolute;
-            width: 3px;
-            height: 3px;
+            width: 2px;
+            height: 2px;
+            background: var(--neon);
             border-radius: 50%;
-            background-color: var(--light-blue);
-            opacity: 0.6;
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 10px var(--glow);
+        }
+
+        /* 主内容容器 - GPU 加速 */
+        .content {
+            position: relative;
+            transform-style: preserve-3d;
+            will-change: transform;
+            opacity: 0;
+            transition: opacity 0.5s var(--speed) ease;
+        }
+
+        /* 芯片组件 - 立体投影 */
+        .chip-container {
+            perspective: 800px;
+            transform: scale(0.8);
+            transition: transform 0.5s var(--speed) ease;
+        }
+
+        .chip {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #0f2440, #1a3c70);
+            border-radius: 20px;
+            transform: rotateY(25deg);
+            box-shadow: 0 0 50px var(--dark),
+                        0 0 80px var(--neon) inset;
+            animation: rotate 8s infinite linear;
+        }
+
+        /* 菜单项 - 悬浮粒子 */
+        .menu-item {
+            box-shadow: 0 0 20px rgba(0,0,0,0.2),
+                        0 0 30px var(--neon) inset;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.6s var(--speed) cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* 加载完成后的动画触发 */
+        .loaded body {
+            opacity: 1;
+        }
+
+        .loaded .content {
+            opacity: 1;
+        }
+
+        .loaded .chip-container {
+            transform: scale(1);
+        }
+
+        .loaded .menu-item:nth-child(1) { animation-delay: calc(var(--speed) + 0.2s); }
+        .loaded .menu-item:nth-child(2) { animation-delay: calc(var(--speed) + 0.4s); }
+        .loaded .menu-item:nth-child(3) { animation-delay: calc(var(--speed) + 0.6s); }
+        .loaded .menu-item:nth-child(4) { animation-delay: calc(var(--speed) + 0.8s); }
+
+        /* 关键帧动画 - 科幻感 */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.3; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes rotate {
+            from { transform: rotateY(25deg) rotateZ(0deg); }
+            to { transform: rotateY(25deg) rotateZ(360deg); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
         }
     </style>
 </head>
 <body>
-    <div class="particles" id="particles"></div>
-    
-    <div class="central-chip">
-        <div class="chip-border"></div>
-        <div class="chip-text">ZMF</div>
-    </div>
-    
-    <div class="sections">
-        <a href="https://tools.zmf.pages.dev" class="section" style="top: 20%; left: 20%; color: #ff6b6b;">
-            <div class="section-icon">🔧</div>
-            <div class="section-title">我的小工具</div>
-        </a>
-        <a href="https://games.zmf.pages.dev" class="section" style="top: 20%; left: 80%; color: #6bff6b;">
-            <div class="section-icon">🎮</div>
-            <div class="section-title">小游戏</div>
-        </a>
-        <a href="/settings/index.html" class="section" style="top: 80%; left: 20%; color: #6b6bff;">
-            <div class="section-icon">⚙️</div>
-            <div class="section-title">设置</div>
-        </a>
-        <a href="/about/index.html" class="section" style="top: 80%; left: 80%; color: #ffff6b;">
-            <div class="section-icon">✉️</div>
-            <div class="section-title">关于我</div>
-        </a>
+    <!-- 预加载器：粒子矩阵 -->
+    <div id="preloader">
+        <canvas id="preload-canvas"></canvas>
     </div>
 
+    <!-- 主内容 -->
+    <div class="content" id="main-content">
+        <div class="chip-container">
+            <div class="chip">
+                <span class="chip-text" style="font-size: 2.5rem; color: var(--neon); text-shadow: 0 0 20px var(--neon);">ZMF</span>
+            </div>
+        </div>
+
+        <div class="menu-items" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; margin-top: -80px;">
+            <div class="menu-item" data-target="game">
+                <i class="fas fa-gamepad" style="font-size: 1.8rem; color: var(--neon); margin-bottom: 10px;"></i>
+                <span style="font-size: 1.2rem; letter-spacing: 1px;">游戏中枢</span>
+            </div>
+            <div class="menu-item" data-target="tool">
+                <i class="fas fa-tools" style="font-size: 1.8rem; color: var(--neon); margin-bottom: 10px;"></i>
+                <span style="font-size: 1.2rem; letter-spacing: 1px;">量子工具</span>
+            </div>
+            <div class="menu-item" data-target="settings">
+                <i class="fas fa-cog" style="font-size: 1.8rem; color: var(--neon); margin-bottom: 10px;"></i>
+                <span style="font-size: 1.2rem; letter-spacing: 1px;">核心设置</span>
+            </div>
+            <div class="menu-item" data-target="about">
+                <i class="fas fa-info-circle" style="font-size: 1.8rem; color: var(--neon); margin-bottom: 10px;"></i>
+                <span style="font-size: 1.2rem; letter-spacing: 1px;">文明档案</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 预加载脚本：粒子动画 -->
     <script>
-        // 创建粒子背景
-        function createParticles() {
-            const container = document.getElementById('particles');
-            const particleCount = 100;
-            
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                
-                // 随机位置
-                particle.style.left = `${Math.random() * 100}%`;
-                particle.style.top = `${Math.random() * 100}%`;
-                
-                // 随机大小
-                const size = Math.random() * 4 + 1;
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                
-                // 随机透明度
-                particle.style.opacity = Math.random() * 0.5 + 0.1;
-                
-                // 随机动画
-                const duration = Math.random() * 10 + 5;
-                particle.style.animation = `float ${duration}s infinite ease-in-out`;
-                particle.style.animationDelay = `${Math.random() * 5}s`;
-                
-                container.appendChild(particle);
+        // 预加载粒子系统
+        const preloadCanvas = document.getElementById('preload-canvas');
+        const preCtx = preloadCanvas.getContext('2d');
+        preloadCanvas.width = window.innerWidth;
+        preloadCanvas.height = window.innerHeight;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * preloadCanvas.width;
+                this.y = Math.random() * preloadCanvas.height;
+                this.speedX = (Math.random() - 0.5) * 2;
+                this.speedY = (Math.random() - 0.5) * 2;
+                this.size = Math.random() * 2 + 1;
+                this.alpha = Math.random();
             }
-            
-            // 添加CSS动画
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes float {
-                    0%, 100% { transform: translate(0, 0); }
-                    25% { transform: translate(${Math.random() * 50 - 25}px, ${Math.random() * 50 - 25}px); }
-                    50% { transform: translate(${Math.random() * 50 - 25}px, ${Math.random() * 50 - 25}px); }
-                    75% { transform: translate(${Math.random() * 50 - 25}px, ${Math.random() * 50 - 25}px); }
-                }
-            `;
-            document.head.appendChild(style);
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > preloadCanvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > preloadCanvas.height) this.speedY *= -1;
+                this.alpha = Math.max(0.2, this.alpha - 0.005);
+            }
+
+            draw() {
+                preCtx.beginPath();
+                preCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                preCtx.fillStyle = `rgba(100, 255, 218, ${this.alpha})`;
+                preCtx.fill();
+            }
         }
-        
-        // 初始化
-        window.addEventListener('load', () => {
-            createParticles();
-            
-            // 注册Service Worker
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js');
+
+        const particles = [];
+        for (let i = 0; i < 300; i++) particles.push(new Particle());
+
+        function preloadAnimation() {
+            preCtx.fillStyle = 'rgba(0,0,0,0.1)';
+            preCtx.fillRect(0, 0, preloadCanvas.width, preloadCanvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(preloadAnimation);
+        }
+        preloadAnimation();
+
+        // 资源预加载（示例：预加载字体和图标）
+        const preloadResources = [
+            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css',
+            'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap'
+        ];
+
+        let loadedCount = 0;
+        function loadResource(url) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = url;
+            link.onload = () => {
+                loadedCount++;
+                checkPreloadComplete();
+            };
+            document.head.appendChild(link);
+        }
+
+        function checkPreloadComplete() {
+            if (loadedCount >= preloadResources.length) {
+                // 预加载完成，隐藏预加载器并显示主内容
+                document.getElementById('preloader').style.display = 'none';
+                document.body.classList.add('loaded');
+                const menuItems = document.querySelectorAll('.menu-item');
+                menuItems.forEach((item, index) => {
+                    setTimeout(() => {
+                        item.style.transform = 'scale(1)';
+                        item.style.opacity = 1;
+                        item.style.animation = 'float 2s infinite ease-in-out';
+                    }, index * 100);
+                });
             }
-        });
+        }
+
+        preloadResources.forEach(loadResource);
     </script>
 </body>
 </html>
